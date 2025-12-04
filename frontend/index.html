@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPI-Shield Dashboard | Prompt Injection Defence</title>
+    <meta name="description" content="Real-time monitoring and analysis dashboard for indirect prompt injection defence">
+    <link rel="stylesheet" href="/frontend/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-brand">
+                <span class="shield-icon">🛡️</span>
+                <h1>IPI-Shield</h1>
+                <span class="version-badge">v1.0</span>
+            </div>
+            <div class="header-status">
+                <span class="status-dot active"></span>
+                <span>Protection Active</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Analysis Panel -->
+            <section class="panel analysis-panel">
+                <h2>🔍 Content Analysis</h2>
+                <div class="input-group">
+                    <label for="content-input">Enter content to analyze:</label>
+                    <textarea id="content-input" rows="6" placeholder="Paste text, HTML, or describe the content to analyze..."></textarea>
+                </div>
+                <div class="input-row">
+                    <select id="content-type">
+                        <option value="text">Plain Text</option>
+                        <option value="html">HTML</option>
+                        <option value="image">Image (Base64)</option>
+                    </select>
+                    <select id="sanitization-mode">
+                        <option value="balanced">Balanced Mode</option>
+                        <option value="strict">Strict Mode</option>
+                        <option value="permissive">Permissive Mode</option>
+                    </select>
+                    <button id="analyze-btn" class="btn-primary">Analyze Content</button>
+                </div>
+            </section>
+
+            <!-- Results Grid -->
+            <div class="results-grid">
+                <!-- Risk Score Card -->
+                <section class="panel score-card">
+                    <h3>Risk Assessment</h3>
+                    <div class="score-display">
+                        <div class="score-circle" id="risk-score">
+                            <span class="score-value">--</span>
+                            <span class="score-label">Risk Score</span>
+                        </div>
+                    </div>
+                    <div class="risk-category" id="risk-category">Awaiting Analysis</div>
+                    <div class="action-badge" id="recommended-action">--</div>
+                </section>
+
+                <!-- Safety Score Card -->
+                <section class="panel score-card">
+                    <h3>Safety Score</h3>
+                    <div class="score-display">
+                        <div class="score-circle safe" id="safety-score">
+                            <span class="score-value">--</span>
+                            <span class="score-label">Safety</span>
+                        </div>
+                    </div>
+                    <div class="safety-breakdown" id="safety-breakdown">
+                        <div class="breakdown-item"><span>Extraction</span><span>--</span></div>
+                        <div class="breakdown-item"><span>Detection</span><span>--</span></div>
+                        <div class="breakdown-item"><span>Embeddings</span><span>--</span></div>
+                    </div>
+                </section>
+
+                <!-- Detection Breakdown -->
+                <section class="panel breakdown-panel">
+                    <h3>Detection Breakdown</h3>
+                    <div class="breakdown-bars" id="detection-breakdown">
+                        <div class="bar-item">
+                            <span class="bar-label">Pattern Match</span>
+                            <div class="bar-track"><div class="bar-fill" style="width: 0%"></div></div>
+                            <span class="bar-value">0%</span>
+                        </div>
+                        <div class="bar-item">
+                            <span class="bar-label">BERT Score</span>
+                            <div class="bar-track"><div class="bar-fill" style="width: 0%"></div></div>
+                            <span class="bar-value">0%</span>
+                        </div>
+                        <div class="bar-item">
+                            <span class="bar-label">Embedding Sim</span>
+                            <div class="bar-track"><div class="bar-fill" style="width: 0%"></div></div>
+                            <span class="bar-value">0%</span>
+                        </div>
+                        <div class="bar-item">
+                            <span class="bar-label">Anomaly</span>
+                            <div class="bar-track"><div class="bar-fill" style="width: 0%"></div></div>
+                            <span class="bar-value">0%</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Flagged Segments -->
+            <section class="panel flagged-panel">
+                <h3>🚨 Flagged Segments</h3>
+                <div class="flagged-list" id="flagged-segments">
+                    <div class="empty-state">No content analyzed yet. Enter content above to begin.</div>
+                </div>
+            </section>
+
+            <!-- Sanitized Output -->
+            <section class="panel sanitized-panel">
+                <h3>✨ Sanitized Output</h3>
+                <div class="sanitized-content" id="sanitized-output">
+                    <div class="empty-state">Sanitized content will appear here after analysis.</div>
+                </div>
+            </section>
+
+            <!-- LLM Proxy Test -->
+            <section class="panel proxy-panel">
+                <h3>🤖 LLM Proxy Test</h3>
+                <div class="input-group">
+                    <label for="prompt-input">Test Prompt:</label>
+                    <textarea id="prompt-input" rows="3" placeholder="Enter a prompt to test through the proxy..."></textarea>
+                </div>
+                <button id="proxy-btn" class="btn-secondary">Send Through Proxy</button>
+                <div class="proxy-response" id="proxy-response">
+                    <div class="empty-state">LLM response will appear here.</div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>IPI-Shield v1.0.0 | Indirect Prompt Injection Defence Layer</p>
+            <p class="disclaimer">For educational and defensive purposes only</p>
+        </footer>
+    </div>
+
+    <script src="/frontend/dashboard.js"></script>
+</body>
+</html>

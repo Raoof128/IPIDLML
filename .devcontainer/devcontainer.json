@@ -1,0 +1,30 @@
+{
+    "name": "IPI-Shield Dev Container",
+    "build": {
+        "dockerfile": "../Dockerfile",
+        "context": ".."
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "python.defaultInterpreterPath": "/usr/local/bin/python",
+                "python.formatting.provider": "black",
+                "python.linting.enabled": true,
+                "python.linting.pylintEnabled": false,
+                "python.linting.flake8Enabled": true,
+                "editor.formatOnSave": true
+            },
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "njpwerner.autodocstring",
+                "charliermarsh.ruff"
+            ]
+        }
+    },
+    "forwardPorts": [
+        8000
+    ],
+    "postCreateCommand": "pip install -r requirements.txt && pip install -r requirements-dev.txt || pip install pytest black isort flake8 mypy",
+    "remoteUser": "appuser"
+}

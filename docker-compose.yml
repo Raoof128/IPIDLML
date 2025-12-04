@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    image: ipi-shield:latest
+    container_name: ipi-shield-api
+    ports:
+      - "8000:8000"
+    environment:
+      - IPI_APP_NAME=IPI-Shield
+      - IPI_ENVIRONMENT=production
+      - IPI_LOG_LEVEL=INFO
+      - IPI_WORKERS=4
+    volumes:
+      - ./logs:/app/logs
+      - ./vector_db:/app/vector_db
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ipi-network
+
+networks:
+  ipi-network:
+    driver: bridge
