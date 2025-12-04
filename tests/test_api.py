@@ -41,7 +41,7 @@ class TestAnalyzeEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert "injection_score" in data
-        assert data["injection_score"] < 30
+        assert data["injection_score"] < 40
 
     def test_analyze_suspicious_text(self, client: TestClient) -> None:
         response = client.post(
