@@ -130,6 +130,102 @@ def mock_llm(prompt: str, system_message: Optional[str] = None, model: str = "gp
         )
 
 
+def _determine_risk_category(injection_score: float) -> str:
+    """Determine risk category based on injection score."""
+    if injection_score >= 80:
+        return "Critical"
+    elif injection_score >= 60:
+        return "High"
+    elif injection_score >= 40:
+        return "Medium"
+    else:
+        return "Low"
+
+
+def _perform_sanitization(
+    prompt: str, injection_detected: bool, mode: SanitizationMode
+) -> tuple[str, bool, str]:
+    """
+    Perform sanitization if injection is detected.
+
+    Returns: (sanitized_prompt, was_sanitized, sanitization_action)
+    """
+    if not injection_detected:
+        return prompt, False, "PASSED"
+
+    sanitization_result = sanitizer.sanitize(content=prompt, mode=mode, preserve_semantics=True)
+
+    if sanitization_result["segments_modified"] > 0:
+        sanitized_prompt = sanitization_result["sanitized_content"]
+        was_sanitized = True
+
+        if mode == SanitizationMode.STRICT:
+            sanitization_action = "BLOCKED"
+        else:
+            sanitization_action = "SCRUBBED"
+    else:
+        sanitized_prompt = prompt
+        was_sanitized = False
+        sanitization_action = "PASSED_WITH_WARNING"
+
+    return sanitized_prompt, was_sanitized, sanitization_action
+
+
+def _create_blocked_response(injection_score: float, risk_category: str) -> str:
+    """Create response for blocked requests."""
+    return (
+        "[REQUEST BLOCKED]\n"
+        "This request was blocked by IPI-Shield due to detected prompt injection patterns.\n"
+        f"Risk Score: {injection_score}/100\n"
+        f"Risk Category: {risk_category}\n"
+        "Please review your input and remove any suspicious content."
+    )
+
+
+def _create_audit_log(
+    original_prompt: str,
+    sanitized_prompt: str,
+    was_sanitized: bool,
+    injection_score: float,
+    risk_category: str,
+    action: str,
+    llm_response: str,
+) -> ProxyAuditLog:
+    """Create audit log entry."""
+    input_hash = hashlib.sha256(original_prompt.encode()).hexdigest()[:16]
+    output_hash = hashlib.sha256(llm_response.encode()).hexdigest()[:16]
+
+    return ProxyAuditLog(
+        original_prompt=(
+            original_prompt[:200] + "..." if len(original_prompt) > 200 else original_prompt
+        ),
+        sanitized_prompt=(
+            sanitized_prompt[:200] + "..." if len(sanitized_prompt) > 200 else sanitized_prompt
+        ),
+        was_modified=was_sanitized,
+        injection_score=injection_score,
+        risk_category=risk_category,
+        action_taken=action,
+        input_hash=input_hash,
+        output_hash=output_hash,
+    )
+
+
+def _determine_compliance_tags(
+    injection_score: float, was_sanitized: bool, sanitization_action: str
+) -> list[str]:
+    """Determine compliance tags based on analysis results."""
+    compliance_tags = []
+    if injection_score < 30:
+        compliance_tags.append("ISO42001_COMPLIANT")
+    if was_sanitized:
+        compliance_tags.append("NIST_AI_RMF_SANITIZED")
+    if sanitization_action != "BLOCKED":
+        compliance_tags.append("SOCI_PASS")
+    compliance_tags.append("AUDIT_TRAIL_COMPLETE")
+    return compliance_tags
+
+
 @router.post("/proxy_llm", response_model=LLMProxyResult)
 async def proxy_llm_request(request: Request, body: LLMRequest) -> LLMProxyResult:
     """
@@ -149,83 +245,39 @@ async def proxy_llm_request(request: Request, body: LLMRequest) -> LLMProxyResul
         # Step 1: Detect payloads in the prompt
         detection_result = payload_detector.detect(body.prompt)
         injection_score = detection_result["injection_score"]
-
-        # Determine risk category
-        if injection_score >= 80:
-            risk_category = "Critical"
-        elif injection_score >= 60:
-            risk_category = "High"
-        elif injection_score >= 40:
-            risk_category = "Medium"
-        else:
-            risk_category = "Low"
+        risk_category = _determine_risk_category(injection_score)
 
         injection_detected = injection_score >= 30
         flagged_patterns = [seg["pattern_type"] for seg in detection_result["flagged_segments"]]
 
         # Step 2: Sanitise if necessary
-        sanitized_prompt = body.prompt
-        was_sanitized = False
-        sanitization_action = "NONE"
-
-        if injection_detected:
-            sanitization_result = sanitizer.sanitize(
-                content=body.prompt, mode=body.sanitization_mode, preserve_semantics=True
-            )
-
-            if sanitization_result["segments_modified"] > 0:
-                sanitized_prompt = sanitization_result["sanitized_content"]
-                was_sanitized = True
-
-                if body.sanitization_mode == SanitizationMode.STRICT:
-                    sanitization_action = "BLOCKED"
-                else:
-                    sanitization_action = "SCRUBBED"
-            else:
-                sanitization_action = "PASSED_WITH_WARNING"
-        else:
-            sanitization_action = "PASSED"
+        sanitized_prompt, was_sanitized, sanitization_action = _perform_sanitization(
+            body.prompt, injection_detected, body.sanitization_mode
+        )
 
         # Step 3: Call LLM (simulated) - only if not blocked
         if sanitization_action == "BLOCKED":
-            llm_response = (
-                "[REQUEST BLOCKED]\n"
-                "This request was blocked by IPI-Shield due to detected prompt injection patterns.\n"
-                f"Risk Score: {injection_score}/100\n"
-                f"Risk Category: {risk_category}\n"
-                "Please review your input and remove any suspicious content."
-            )
+            llm_response = _create_blocked_response(injection_score, risk_category)
         else:
             llm_response = mock_llm(
                 prompt=sanitized_prompt, system_message=body.system_message, model=body.model
             )
 
         # Step 4: Create audit log
-        input_hash = hashlib.sha256(body.prompt.encode()).hexdigest()[:16]
-        output_hash = hashlib.sha256(llm_response.encode()).hexdigest()[:16]
-
-        audit_log = ProxyAuditLog(
-            original_prompt=body.prompt[:200] + "..." if len(body.prompt) > 200 else body.prompt,
-            sanitized_prompt=(
-                sanitized_prompt[:200] + "..." if len(sanitized_prompt) > 200 else sanitized_prompt
-            ),
-            was_modified=was_sanitized,
-            injection_score=injection_score,
-            risk_category=risk_category,
-            action_taken=sanitization_action,
-            input_hash=input_hash,
-            output_hash=output_hash,
+        audit_log = _create_audit_log(
+            body.prompt,
+            sanitized_prompt,
+            was_sanitized,
+            injection_score,
+            risk_category,
+            sanitization_action,
+            llm_response,
         )
 
         # Step 5: Compliance tagging
-        compliance_tags = []
-        if injection_score < 30:
-            compliance_tags.append("ISO42001_COMPLIANT")
-        if was_sanitized:
-            compliance_tags.append("NIST_AI_RMF_SANITIZED")
-        if sanitization_action != "BLOCKED":
-            compliance_tags.append("SOCI_PASS")
-        compliance_tags.append("AUDIT_TRAIL_COMPLETE")
+        compliance_tags = _determine_compliance_tags(
+            injection_score, was_sanitized, sanitization_action
+        )
 
         result = LLMProxyResult(
             request_id=request_id,

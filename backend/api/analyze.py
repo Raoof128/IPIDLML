@@ -97,7 +97,9 @@ payload_detector = PayloadDetector()
 safety_scorer = SafetyScorer()
 
 
-def _extract_content(content: str, content_type: ContentType) -> tuple[str, Optional[str], Optional[dict], dict]:
+def _extract_content(
+    content: str, content_type: ContentType
+) -> tuple[str, Optional[str], Optional[dict], dict]:
     """Extract text and features based on content type."""
     raw_text = ""
     ocr_text = None
@@ -137,7 +139,7 @@ def _extract_content(content: str, content_type: ContentType) -> tuple[str, Opti
         # PDF extraction (simulated)
         raw_text = content  # In real impl, would parse PDF
         extraction_metadata["simulated"] = True
-        
+
     return raw_text, ocr_text, visual_features, extraction_metadata
 
 
