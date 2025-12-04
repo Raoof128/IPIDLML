@@ -8,11 +8,11 @@ Serves as a security proxy layer between users and LLM endpoints.
 import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Callable
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 
 from backend.api import analyze, proxy, report, sanitize
 from backend.config import settings
@@ -134,7 +134,7 @@ async def dashboard():
 
 
 @app.middleware("http")
-async def add_request_id(request: Request, call_next):
+async def add_request_id(request: Request, call_next: Callable) -> Response:
     """Add unique request ID to each request for tracing."""
     request_id = str(uuid.uuid4())
     request.state.request_id = request_id

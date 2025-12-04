@@ -20,7 +20,7 @@ class EmbeddingEngine:
     _model = None
     _st_available = None  # Tri-state: None, True, False
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args: object, **kwargs: object) -> "EmbeddingEngine":
         if cls._instance is None:
             cls._instance = super(EmbeddingEngine, cls).__new__(cls)
         return cls._instance
@@ -45,7 +45,7 @@ class EmbeddingEngine:
             self._st_available = False
         return self._st_available
 
-    def _load_model(self):
+    def _load_model(self) -> None:
         """Lazy loads the SentenceTransformer model."""
         if self._model is not None:
             return

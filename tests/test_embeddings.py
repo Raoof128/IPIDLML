@@ -2,6 +2,7 @@
 Tests for Embedding Utility.
 """
 
+from typing import Generator
 from unittest.mock import MagicMock, PropertyMock, patch
 
 import numpy as np
@@ -13,12 +14,12 @@ from backend.utils.embeddings import EmbeddingEngine
 class TestEmbeddingEngine:
 
     @pytest.fixture
-    def engine(self):
+    def engine(self) -> Generator[EmbeddingEngine, None, None]:
         # Reset singleton for each test
         EmbeddingEngine._instance = None
         return EmbeddingEngine()
 
-    def test_fallback_encoding(self, engine):
+    def test_fallback_encoding(self, engine: EmbeddingEngine) -> None:
         """Test that fallback simulation works when ST is missing."""
         with patch(
             "backend.utils.embeddings.EmbeddingEngine.st_available", new_callable=PropertyMock
@@ -33,7 +34,7 @@ class TestEmbeddingEngine:
             emb2 = engine.encode("test text")
             assert emb == emb2
 
-    def test_similarity_calculation(self, engine):
+    def test_similarity_calculation(self, engine: EmbeddingEngine) -> None:
         """Test cosine similarity logic."""
         # Use simple vectors for predictable result
         with patch.object(engine, "encode") as mock_encode:
@@ -48,7 +49,7 @@ class TestEmbeddingEngine:
             sim = engine.similarity("a", "b")
             assert sim < 0.01
 
-    def test_real_model_loading(self, engine):
+    def test_real_model_loading(self, engine: EmbeddingEngine) -> None:
         """Test that model loading is attempted when available."""
         import sys
 
