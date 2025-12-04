@@ -161,7 +161,7 @@ class HTMLExtractor:
                 alt = img.get("alt", "")
                 if alt:
                     alt_texts_list = cast(list[str], result["alt_texts"])
-                    alt_texts_list.append(alt)
+                    alt_texts_list.append(str(alt))
 
         # Detect hidden content
         if detect_hidden:
