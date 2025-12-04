@@ -26,8 +26,8 @@ class TestImageAnalyzer:
         result = analyzer.analyze(valid_b64)
 
         assert "adversarial_score" in result
-        assert "visual_features" in result
-        assert "anomaly_flags" in result
+        assert "color_analysis" in result
+        assert "anomaly_indicators" in result
 
     def test_invalid_image_data(self, analyzer: ImageAnalyzer) -> None:
         """Test handling of invalid image data."""
