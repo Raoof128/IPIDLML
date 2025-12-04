@@ -52,7 +52,7 @@ class TestSafetyScorer:
 
     def test_metadata_scoring(self, scorer: SafetyScorer) -> None:
         """Test metadata risk scoring."""
-        extraction_quality = {}
+        extraction_quality: dict[str, object] = {}
         detection_result = {"injection_score": 10, "breakdown": {"embedding_score": 5}}
         content_metadata = {"source": "unknown", "user_reputation": 30}
 
@@ -63,7 +63,7 @@ class TestSafetyScorer:
 
     def test_none_metadata(self, scorer: SafetyScorer) -> None:
         """Test with None metadata."""
-        extraction_quality = {}
+        extraction_quality: dict[str, object] = {}
         detection_result = {"injection_score": 10, "breakdown": {"embedding_score": 5}}
 
         result = scorer.calculate(extraction_quality, detection_result, None)

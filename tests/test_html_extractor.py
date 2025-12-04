@@ -58,7 +58,10 @@ class TestHTMLExtractor:
 
     def test_base64_detection(self, extractor: HTMLExtractor) -> None:
         """Test detection of base64 encoded content."""
-        html = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
+        html = (
+            "data:image/png;base64,"
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
+        )
         result = extractor.extract(html)
 
         assert len(result["base64_content"]) > 0
