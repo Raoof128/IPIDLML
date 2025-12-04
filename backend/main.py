@@ -6,17 +6,17 @@ Serves as a security proxy layer between users and LLM endpoints.
 """
 
 import uuid
-from datetime import datetime
 from contextlib import asynccontextmanager
+from datetime import datetime
 from typing import AsyncGenerator
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 
+
+from backend.api import analyze, proxy, report, sanitize
 from backend.config import settings
-from backend.api import analyze, sanitize, proxy, report
 from backend.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -32,14 +32,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info(f"🛡️ {settings.APP_NAME} v{settings.APP_VERSION} starting up...")
     logger.info(f"Environment: {settings.ENVIRONMENT}")
     logger.info("Loading detection models...")
-    
+
     # Initialize engines (lazy loading in production)
     app.state.analysis_reports = analysis_reports
     app.state.startup_time = datetime.utcnow()
-    
+
     logger.info("✅ IPI-Shield ready to protect!")
     yield
-    
+
     logger.info("🛑 IPI-Shield shutting down...")
 
 
@@ -91,22 +91,24 @@ async def root():
 async def health_check(request: Request):
     """Health check endpoint for monitoring."""
     uptime = None
-    if hasattr(request.app.state, 'startup_time'):
+    if hasattr(request.app.state, "startup_time"):
         uptime = (datetime.utcnow() - request.app.state.startup_time).total_seconds()
-    
-    return JSONResponse({
-        "status": "healthy",
-        "service": "IPI-Shield",
-        "version": "1.0.0",
-        "uptime_seconds": uptime,
-        "timestamp": datetime.utcnow().isoformat(),
-        "components": {
-            "ocr_engine": "operational",
-            "payload_detector": "operational",
-            "sanitizer": "operational",
-            "safety_scorer": "operational",
+
+    return JSONResponse(
+        {
+            "status": "healthy",
+            "service": "IPI-Shield",
+            "version": "1.0.0",
+            "uptime_seconds": uptime,
+            "timestamp": datetime.utcnow().isoformat(),
+            "components": {
+                "ocr_engine": "operational",
+                "payload_detector": "operational",
+                "sanitizer": "operational",
+                "safety_scorer": "operational",
+            },
         }
-    })
+    )
 
 
 @app.get("/dashboard", response_class=HTMLResponse)
@@ -128,7 +130,7 @@ async def dashboard():
             </body>
             </html>
             """,
-            status_code=200
+            status_code=200,
         )
 
 
@@ -137,13 +139,14 @@ async def add_request_id(request: Request, call_next):
     """Add unique request ID to each request for tracing."""
     request_id = str(uuid.uuid4())
     request.state.request_id = request_id
-    
+
     response = await call_next(request)
     response.headers["X-Request-ID"] = request_id
-    
+
     return response
 
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host=settings.HOST, port=settings.PORT)

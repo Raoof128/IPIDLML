@@ -4,35 +4,34 @@ Logger - Structured logging for IPI-Shield.
 
 import logging
 import sys
-from datetime import datetime
 
 
 class IPIShieldLogger:
     """Custom logger with structured output."""
-    
+
     _instance = None
-    
+
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._initialized = False
         return cls._instance
-    
+
     def __init__(self):
         if self._initialized:
             return
-        
+
         self.loggers = {}
         self._initialized = True
-        
+
         # Configure root logger
         logging.basicConfig(
             level=logging.INFO,
-            format='%(asctime)s | %(levelname)-8s | %(name)s | %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S',
-            handlers=[logging.StreamHandler(sys.stdout)]
+            format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+            handlers=[logging.StreamHandler(sys.stdout)],
         )
-    
+
     def get_logger(self, name: str) -> logging.Logger:
         if name not in self.loggers:
             logger = logging.getLogger(f"ipi-shield.{name}")
