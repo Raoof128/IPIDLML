@@ -14,7 +14,6 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 
-
 from backend.api import analyze, proxy, report, sanitize
 from backend.config import settings
 from backend.utils.logger import get_logger

@@ -8,7 +8,6 @@ Detects hidden payloads, suspicious scripts, and injection patterns.
 import re
 from html import unescape
 
-
 from backend.utils.logger import get_logger
 
 logger = get_logger(__name__)

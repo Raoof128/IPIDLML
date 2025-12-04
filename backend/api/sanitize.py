@@ -6,7 +6,6 @@ Supports multiple sanitisation modes: STRICT, BALANCED, PERMISSIVE.
 """
 
 from datetime import datetime
-
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException

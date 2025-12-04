@@ -4,6 +4,7 @@ Embeddings Utility - Sentence embeddings for similarity comparison.
 
 import hashlib
 from typing import List
+
 from backend.utils.logger import get_logger
 
 logger = get_logger(__name__)
