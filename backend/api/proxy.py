@@ -311,7 +311,7 @@ async def proxy_llm_request(request: Request, body: LLMRequest) -> LLMProxyResul
 
 
 @router.get("/proxy/stats")
-async def get_proxy_stats():
+async def get_proxy_stats() -> dict[str, object]:
     """Get statistics about proxy usage and threats detected."""
     return {
         "total_requests": 0,  # Would be tracked in production

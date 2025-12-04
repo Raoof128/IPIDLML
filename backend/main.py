@@ -8,7 +8,7 @@ Serves as a security proxy layer between users and LLM endpoints.
 import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import AsyncGenerator, Callable
+from typing import AsyncGenerator, Callable, cast
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -70,7 +70,7 @@ app.include_router(report.router, tags=["Reports"])
 
 
 @app.get("/", response_class=HTMLResponse)
-async def root():
+async def root() -> str:
     """Root endpoint - redirects to dashboard."""
     return """
     <!DOCTYPE html>
@@ -87,7 +87,7 @@ async def root():
 
 
 @app.get("/health")
-async def health_check(request: Request):
+async def health_check(request: Request) -> JSONResponse:
     """Health check endpoint for monitoring."""
     uptime = None
     if hasattr(request.app.state, "startup_time"):
@@ -111,7 +111,7 @@ async def health_check(request: Request):
 
 
 @app.get("/dashboard", response_class=HTMLResponse)
-async def dashboard():
+async def dashboard() -> HTMLResponse:
     """Serve the main dashboard UI."""
     try:
         with open("frontend/index.html", "r") as f:
@@ -139,7 +139,7 @@ async def add_request_id(request: Request, call_next: Callable) -> Response:
     request_id = str(uuid.uuid4())
     request.state.request_id = request_id
 
-    response = await call_next(request)
+    response = cast(Response, await call_next(request))
     response.headers["X-Request-ID"] = request_id
 
     return response

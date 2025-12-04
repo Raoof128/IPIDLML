@@ -99,12 +99,12 @@ safety_scorer = SafetyScorer()
 
 def _extract_content(
     content: str, content_type: ContentType
-) -> tuple[str, Optional[str], Optional[dict], dict]:
+) -> tuple[str, Optional[str], Optional[dict], dict[str, object]]:
     """Extract text and features based on content type."""
     raw_text = ""
     ocr_text = None
     visual_features = None
-    extraction_metadata = {"content_type": content_type.value}
+    extraction_metadata: dict[str, object] = {"content_type": content_type.value}
 
     if content_type == ContentType.TEXT:
         raw_text = content
@@ -245,7 +245,7 @@ async def analyze_file(
     request: Request,
     file: UploadFile = File(...),
     content_type: ContentType = Form(default=ContentType.IMAGE),
-):
+) -> AnalysisResult:
     """
     Analyze an uploaded file for prompt injection attacks.
 

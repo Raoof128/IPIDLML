@@ -2,7 +2,7 @@
 Tests for Embedding Utility.
 """
 
-from typing import Generator
+from typing import Iterator
 from unittest.mock import MagicMock, PropertyMock, patch
 
 import numpy as np
@@ -14,7 +14,7 @@ from backend.utils.embeddings import EmbeddingEngine
 class TestEmbeddingEngine:
 
     @pytest.fixture
-    def engine(self) -> Generator[EmbeddingEngine, None, None]:
+    def engine(self) -> Iterator[EmbeddingEngine]:
         # Reset singleton for each test
         EmbeddingEngine._instance = None
         return EmbeddingEngine()

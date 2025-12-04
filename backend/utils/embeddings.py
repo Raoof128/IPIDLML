@@ -118,4 +118,4 @@ class EmbeddingEngine:
 
             if norm1 == 0 or norm2 == 0:
                 return 0.0
-            return round(dot / (norm1 * norm2), 4)
+            return float(round(dot / (norm1 * norm2), 4))

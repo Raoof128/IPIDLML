@@ -2,7 +2,7 @@
 API Integration Tests for IPI-Shield.
 """
 
-from typing import Generator
+from typing import Iterator
 
 import pytest
 from fastapi.testclient import TestClient
@@ -11,7 +11,7 @@ from backend.main import app
 
 
 @pytest.fixture
-def client() -> Generator[TestClient, None, None]:
+def client() -> Iterator[TestClient]:
     """Test client fixture."""
     return TestClient(app)
 
