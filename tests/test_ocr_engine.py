@@ -9,7 +9,7 @@ from backend.engines.ocr_engine import OCREngine
 
 class TestOCREngine:
 
-    def test_fallback_simulation(self):
+    def test_fallback_simulation(self) -> None:
         """Test fallback to simulation when Tesseract is unavailable."""
         # Mock check_tesseract to return False
         with patch.object(OCREngine, "_check_tesseract", return_value=False):
@@ -20,7 +20,7 @@ class TestOCREngine:
             assert "text" in result
             assert result["confidence"] > 0
 
-    def test_tesseract_execution(self):
+    def test_tesseract_execution(self) -> None:
         """Test that Tesseract path is taken when available."""
         import sys
 

@@ -17,7 +17,7 @@ class TestEmbeddingEngine:
     def engine(self) -> Iterator[EmbeddingEngine]:
         # Reset singleton for each test
         EmbeddingEngine._instance = None
-        return EmbeddingEngine()
+        yield EmbeddingEngine()
 
     def test_fallback_encoding(self, engine: EmbeddingEngine) -> None:
         """Test that fallback simulation works when ST is missing."""

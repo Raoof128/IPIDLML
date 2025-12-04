@@ -20,7 +20,7 @@ class SanitizationMode(str, Enum):
 class Sanitizer:
     """Content sanitization engine for neutralizing prompt injections."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.replacement_map = {
             r"\bignore\s+(?:all\s+)?previous\s+instructions?\b": "[FILTERED: instruction override attempt]",
             r"\bdisregard\s+(?:the\s+)?(?:above|safety|rules?)\b": "[FILTERED: safety bypass attempt]",

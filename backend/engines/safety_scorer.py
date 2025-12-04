@@ -12,7 +12,7 @@ logger = get_logger(__name__)
 class SafetyScorer:
     """Trust and safety scoring engine."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.weights = {
             "extraction_quality": 0.15,
             "detection_signal": 0.45,

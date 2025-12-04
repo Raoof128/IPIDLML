@@ -216,7 +216,7 @@ def _assess_soci_act(analysis: dict) -> str:
 
 
 @router.get("/report/{analysis_id}/html", response_class=HTMLResponse)
-async def get_report_html(analysis_id: str, request: Request):
+async def get_report_html(analysis_id: str, request: Request) -> HTMLResponse:
     """Generate an HTML version of the safety report."""
     try:
         report = await get_report(analysis_id, request, include_compliance=True)
@@ -296,7 +296,7 @@ async def get_report_html(analysis_id: str, request: Request):
 
 
 @router.get("/reports")
-async def list_reports(request: Request, limit: int = 20):
+async def list_reports(request: Request, limit: int = 20) -> dict[str, object]:
     """List all available analysis reports."""
     analysis_reports = getattr(request.app.state, "analysis_reports", {})
 

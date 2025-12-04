@@ -7,6 +7,7 @@ Detects hidden payloads, suspicious scripts, and injection patterns.
 
 import re
 from html import unescape
+from typing import Any
 
 from backend.utils.logger import get_logger
 
@@ -26,7 +27,7 @@ class HTMLExtractor:
     - Base64 embedded content detection
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the HTML extractor."""
         # Patterns for detection
         self.hidden_patterns = [
@@ -67,7 +68,7 @@ class HTMLExtractor:
 
     def extract(
         self, html_content: str, extract_alt_text: bool = True, detect_hidden: bool = True
-    ) -> dict:
+    ) -> dict[str, Any]:
         """
         Extract content from HTML.
 
@@ -117,7 +118,7 @@ class HTMLExtractor:
 
     def _extract_with_beautifulsoup(
         self, html_content: str, extract_alt_text: bool, detect_hidden: bool
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Extract using BeautifulSoup parser."""
         from bs4 import BeautifulSoup
 
@@ -181,7 +182,7 @@ class HTMLExtractor:
 
     def _extract_with_regex(
         self, html_content: str, extract_alt_text: bool, detect_hidden: bool
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Fallback regex-based extraction."""
         result = {
             "visible_text": "",
@@ -243,7 +244,7 @@ class HTMLExtractor:
 
         return result
 
-    def _find_hidden_elements(self, soup) -> list[dict]:
+    def _find_hidden_elements(self, soup: Any) -> list[dict[str, Any]]:
         """Find elements with hidden styles."""
         hidden = []
 

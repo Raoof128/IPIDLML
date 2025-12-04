@@ -13,7 +13,7 @@ from backend.main import app
 @pytest.fixture
 def client() -> Iterator[TestClient]:
     """Test client fixture."""
-    return TestClient(app)
+    yield TestClient(app)
 
 
 class TestHealthEndpoint:

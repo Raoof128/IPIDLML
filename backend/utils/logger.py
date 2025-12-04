@@ -9,15 +9,16 @@ import sys
 class IPIShieldLogger:
     """Custom logger with structured output."""
 
-    _instance = None
+    _instance: "IPIShieldLogger | None" = None
+    _initialized: bool
 
-    def __new__(cls):
+    def __new__(cls) -> "IPIShieldLogger":
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
+            cls._instance._initialized = False  # type: ignore[attr-defined]
         return cls._instance
 
-    def __init__(self):
+    def __init__(self) -> None:
         if self._initialized:
             return
 
@@ -36,7 +37,7 @@ class IPIShieldLogger:
         if name not in self.loggers:
             logger = logging.getLogger(f"ipi-shield.{name}")
             self.loggers[name] = logger
-        return self.loggers[name]
+        return self.loggers[name]  # type: ignore[return-value]
 
 
 _logger_instance = IPIShieldLogger()

@@ -28,7 +28,7 @@ class MLModelHandler:
     _model = None
     _ml_available = None  # Tri-state: None (unknown), True, False
 
-    def __new__(cls):
+    def __new__(cls) -> "MLModelHandler":
         if cls._instance is None:
             cls._instance = super(MLModelHandler, cls).__new__(cls)
         return cls._instance
@@ -50,7 +50,7 @@ class MLModelHandler:
 
         return self._ml_available
 
-    def load_model(self):
+    def load_model(self) -> None:
         """Loads the model if not already loaded."""
         if self._model is not None:
             return
@@ -110,12 +110,12 @@ class MLModelHandler:
 class PayloadDetector:
     """Prompt injection payload detection engine."""
 
-    def __init__(self, use_bert: bool = True):
+    def __init__(self, use_bert: bool = True) -> None:
         self.use_bert = use_bert and settings.ENABLE_BERT
         self._initialize_patterns()
 
         # Initialize ML handler if enabled
-        self.ml_handler = MLModelHandler() if self.use_bert else None
+        self.ml_handler: MLModelHandler | None = MLModelHandler() if self.use_bert else None
 
         # Weights for scoring
         self.weights = {"pattern": 0.45, "bert": 0.35, "embedding": 0.10, "anomaly": 0.10}
@@ -171,7 +171,7 @@ class PayloadDetector:
         bert_score = 0.0
         ml_ready = self.ml_handler and self.ml_handler.ml_available
 
-        if self.use_bert and ml_ready:
+        if self.use_bert and ml_ready and self.ml_handler:
             # Lazy load model on first request to speed up app startup
             self.ml_handler.load_model()
             bert_score = self.ml_handler.predict(combined)
