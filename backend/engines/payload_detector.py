@@ -88,6 +88,9 @@ class MLModelHandler:
             import torch
             import torch.nn.functional as F
 
+            if self._tokenizer is None:
+                return 0.0
+
             # Security: Truncate to max_length to prevent OOM/DoS
             inputs = self._tokenizer(
                 text, return_tensors="pt", truncation=True, max_length=512, padding=True
@@ -120,7 +123,7 @@ class PayloadDetector:
         # Weights for scoring
         self.weights = {"pattern": 0.45, "bert": 0.35, "embedding": 0.10, "anomaly": 0.10}
 
-    def _initialize_patterns(self):
+    def _initialize_patterns(self) -> None:
         """Initialize regex patterns for heuristic detection."""
         self.jailbreak_patterns = [
             (r"\bignore\b.*?\bprevious\b.*?\binstructions?\b", 0.95),

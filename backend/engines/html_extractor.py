@@ -7,7 +7,7 @@ Detects hidden payloads, suspicious scripts, and injection patterns.
 
 import re
 from html import unescape
-from typing import Any
+from typing import Any, cast
 
 from backend.utils.logger import get_logger
 
@@ -111,7 +111,10 @@ class HTMLExtractor:
             result = self._extract_with_regex(html_content, extract_alt_text, detect_hidden)
 
         # Check for injection indicators in all extracted text
-        all_text = result["visible_text"] + " " + " ".join(result.get("alt_texts", []))
+        visible_text = str(result.get("visible_text", ""))
+        alt_texts = result.get("alt_texts", [])
+        alt_texts_list = alt_texts if isinstance(alt_texts, list) else []
+        all_text = visible_text + " " + " ".join(str(t) for t in alt_texts_list)
         result["injection_indicators"] = self._detect_injection_patterns(all_text)
 
         return result
@@ -139,7 +142,8 @@ class HTMLExtractor:
         # Extract title
         title_tag = soup.find("title")
         if title_tag:
-            result["metadata"]["title"] = title_tag.get_text(strip=True)
+            metadata = cast(dict[str, Any], result["metadata"])
+            metadata["title"] = title_tag.get_text(strip=True)
 
         # Remove script and style elements for visible text extraction
         for element in soup(["script", "style", "noscript"]):
@@ -156,7 +160,8 @@ class HTMLExtractor:
             for img in soup_full.find_all("img"):
                 alt = img.get("alt", "")
                 if alt:
-                    result["alt_texts"].append(alt)
+                    alt_texts_list = cast(list[str], result["alt_texts"])
+                    alt_texts_list.append(alt)
 
         # Detect hidden content
         if detect_hidden:
@@ -171,9 +176,8 @@ class HTMLExtractor:
             suspicious = self._analyze_script(script_text)
             if suspicious:
                 result["has_suspicious_scripts"] = True
-                result["suspicious_scripts"].append(
-                    {"snippet": script_text[:200], "patterns_found": suspicious}
-                )
+                scripts_list = cast(list[dict[str, Any]], result["suspicious_scripts"])
+                scripts_list.append({"snippet": script_text[:200], "patterns_found": suspicious})
 
         # Detect base64 content
         result["base64_content"] = self._detect_base64(html_content)
@@ -223,9 +227,8 @@ class HTMLExtractor:
             for pattern in self.hidden_patterns:
                 if re.search(pattern, html_content, re.IGNORECASE):
                     result["has_hidden_divs"] = True
-                    result["hidden_content"].append(
-                        {"pattern": pattern, "type": "style_based_hiding"}
-                    )
+                    hidden_list = cast(list[dict[str, Any]], result["hidden_content"])
+                    hidden_list.append({"pattern": pattern, "type": "style_based_hiding"})
 
         # Check for suspicious scripts
         script_matches = re.findall(
@@ -235,9 +238,8 @@ class HTMLExtractor:
             suspicious = self._analyze_script(script)
             if suspicious:
                 result["has_suspicious_scripts"] = True
-                result["suspicious_scripts"].append(
-                    {"snippet": script[:200], "patterns_found": suspicious}
-                )
+                scripts_list = cast(list[dict[str, Any]], result["suspicious_scripts"])
+                scripts_list.append({"snippet": script[:200], "patterns_found": suspicious})
 
         # Detect base64
         result["base64_content"] = self._detect_base64(html_content)

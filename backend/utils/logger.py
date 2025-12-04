@@ -22,7 +22,7 @@ class IPIShieldLogger:
         if self._initialized:
             return
 
-        self.loggers = {}
+        self.loggers: dict[str, logging.Logger] = {}
         self._initialized = True
 
         # Configure root logger
@@ -37,7 +37,7 @@ class IPIShieldLogger:
         if name not in self.loggers:
             logger = logging.getLogger(f"ipi-shield.{name}")
             self.loggers[name] = logger
-        return self.loggers[name]  # type: ignore[return-value]
+        return self.loggers[name]  # type: ignore[no-any-return]
 
 
 _logger_instance = IPIShieldLogger()

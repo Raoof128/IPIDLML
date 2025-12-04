@@ -74,7 +74,7 @@ class SafetyScorer:
     def _calculate_drift_score(self, detection_result: dict) -> float:
         breakdown = detection_result.get("breakdown", {})
         embedding_score = breakdown.get("embedding_score", 0)
-        return max(0, 100 - embedding_score)
+        return float(max(0, 100 - embedding_score))
 
     def _score_metadata(self, metadata: Optional[dict]) -> float:
         if not metadata:
